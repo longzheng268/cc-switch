@@ -629,6 +629,7 @@ fn tool_display_name(tool: &str) -> &'static str {
         "mcode" => "MiniMax Code",
         "kimi" => "Kimi Code",
         "agy" => "Antigravity CLI",
+        "mimocode" => "MiMoCode",
         _ => "Unknown",
     }
 }
@@ -1719,7 +1720,7 @@ enum ShellProbe {
 /// 只执行已定位到的真实可执行文件。
 #[cfg(not(target_os = "windows"))]
 fn try_get_version(tool: &str) -> ShellProbe {
-    use std::process::Command;
+    use std::process::{Command, Stdio};
 
     // MiMoCode 的 npm 包名是 `mimocode`，但实际二进制名为 `mimo`（`@mimo-ai/cli` 的 bin）。
     let cmd = if tool == "mimocode" { "mimo" } else { tool };
@@ -1730,10 +1731,21 @@ fn try_get_version(tool: &str) -> ShellProbe {
             .filter(|s| is_valid_shell(s))
             .unwrap_or_else(|| "sh".to_string());
         let flag = default_flag_for_shell(&shell);
-        Command::new(shell)
-            .arg(flag)
+        let mut cmd = Command::new(shell);
+        cmd.arg(flag)
             .arg(format!("{cmd} --version"))
-            .output()
+            // 与 `resolve_path_default` 相同：交互式 shell（-lic）不能读到继承来的
+            // stdin，也不能因持有控制终端被 SIGTTIN 停住（从终端启动时整个应用卡死）。
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
+        isolate_child_process_group(&mut cmd);
+        cmd.spawn().map_err(|e| e.to_string()).and_then(|child| {
+            wait_child_output(
+                child,
+                CommandDeadline::from_timeout(Some(INSTALL_PROBE_TIMEOUT)),
+            )
+        })
     };
 
     match output {
@@ -2224,12 +2236,14 @@ fn mcode_extra_search_paths(
 }
 
 fn tool_executable_candidates(tool: &str, dir: &Path) -> Vec<std::path::PathBuf> {
+    // MiMoCode 的 npm 包名是 `mimocode`，但实际二进制名为 `mimo`（`@mimo-ai/cli` 的 bin）。
+    let bin = if tool == "mimocode" { "mimo" } else { tool };
     #[cfg(target_os = "windows")]
     {
-        let extensionless = dir.join(tool);
+        let extensionless = dir.join(bin);
         let mut candidates = vec![
-            dir.join(format!("{tool}.cmd")),
-            dir.join(format!("{tool}.exe")),
+            dir.join(format!("{bin}.cmd")),
+            dir.join(format!("{bin}.exe")),
         ];
         if windows_runnable_sibling_for_extensionless_tool(&extensionless).is_none() {
             candidates.push(extensionless);
@@ -2239,7 +2253,7 @@ fn tool_executable_candidates(tool: &str, dir: &Path) -> Vec<std::path::PathBuf>
 
     #[cfg(not(target_os = "windows"))]
     {
-        vec![dir.join(tool)]
+        vec![dir.join(bin)]
     }
 }
 

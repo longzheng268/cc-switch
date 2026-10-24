@@ -706,7 +706,7 @@ impl SkillService {
 
         Ok(match app {
             AppType::Mcode => crate::mcode_config::data_dir().join("skills"),
-            AppType::MimoDesktop => crate::mimo_config::config_dir().join("skills"),
+            AppType::MimoDesktop => todo!("Skills sync is not supported for MiMo Desktop"),
             AppType::Kimi => crate::kimi_config::data_dir().join("skills"),
             AppType::Claude => home.join(".claude").join("skills"),
             AppType::ClaudeDesktop => home.join(".claude-desktop").join("skills"),
@@ -2923,7 +2923,7 @@ impl SkillService {
     fn is_sync_managed_app(app: &AppType) -> bool {
         !matches!(
             app,
-            AppType::ClaudeDesktop | AppType::OpenClaw | AppType::Pi
+            AppType::ClaudeDesktop | AppType::OpenClaw | AppType::Pi | AppType::MimoDesktop
         )
     }
 

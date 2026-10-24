@@ -133,7 +133,7 @@ const AGY_WINDOWS_INSTALL_COMMAND = `powershell -NoProfile -ExecutionPolicy Bypa
 )}`;
 
 const MIMOCODE_WINDOWS_INSTALL_COMMAND = `powershell -NoProfile -ExecutionPolicy Bypass -EncodedCommand ${powershellEncodedCommand(
-  "npm i -g @mimo-ai/cli @mimo-ai/mimocode-windows-x64@latest",
+  "npm i -g @mimo-ai/cli@latest",
 )}`;
 
 // 与后端 npm_install_command_for("claude") 保持一致：原生依赖和 postinstall 缺一不可，
@@ -169,7 +169,7 @@ ${posixScriptInstallCommand("https://code.kimi.com/kimi-code/install.sh")}
 # Antigravity CLI
 ${posixScriptInstallCommand("https://antigravity.google/cli/install.sh")}
 # MiMoCode
-npm i -g @mimo-ai/cli @mimo-ai/mimocode-windows-x64@latest`;
+npm i -g @mimo-ai/cli@latest`;
 
 const WINDOWS_ONE_CLICK_INSTALL_COMMANDS = `# Claude Code
 ${CLAUDE_NPM_INSTALL_COMMAND}
