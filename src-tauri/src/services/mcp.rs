@@ -382,7 +382,12 @@ impl McpService {
     /// 由 CC Switch 管理 MCP 的应用（Claude Desktop、OpenClaw 不支持）
     pub fn live_sync_apps() -> Vec<AppType> {
         AppType::all()
-            .filter(|app| !matches!(app, AppType::OpenClaw | AppType::ClaudeDesktop | AppType::MimoDesktop))
+            .filter(|app| {
+                !matches!(
+                    app,
+                    AppType::OpenClaw | AppType::ClaudeDesktop | AppType::MimoDesktop
+                )
+            })
             .collect()
     }
 

@@ -4838,5 +4838,9 @@
       "tool_use": "Araç kullanımı",
       "dynamically_loaded_tools": "Araçları gerektiğinde yükle"
     }
+  },
+  "preset": {
+    "miMo": "Xiaomi MiMo",
+    "miMoTokenPlan": "Xiaomi MiMo Token Plan (Çin)"
   }
 }

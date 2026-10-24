@@ -4968,5 +4968,9 @@
       "tool_use": "工具呼叫",
       "dynamically_loaded_tools": "按需載入工具"
     }
+  },
+  "preset": {
+    "miMo": "小米 MiMo",
+    "miMoTokenPlan": "小米 MiMo 套餐（中國大陸）"
   }
 }

@@ -5458,7 +5458,10 @@ impl ProviderService {
         if app_type == AppType::Pi {
             return pi::list(state);
         }
-        if matches!(app_type, AppType::Mcode | AppType::MimoDesktop | AppType::Kimi) {
+        if matches!(
+            app_type,
+            AppType::Mcode | AppType::MimoDesktop | AppType::Kimi
+        ) {
             let native = if app_type == AppType::Kimi {
                 crate::kimi_config::get_providers()?
             } else if app_type == AppType::MimoDesktop {
@@ -5641,7 +5644,10 @@ impl ProviderService {
             return Self::add_codex(state, provider);
         }
 
-        if matches!(app_type, AppType::Mcode | AppType::MimoDesktop | AppType::Kimi) {
+        if matches!(
+            app_type,
+            AppType::Mcode | AppType::MimoDesktop | AppType::Kimi
+        ) {
             // The key is user-chosen, and saving would overwrite an existing row or live node.
             // Adds are serialized here; the live write repeats the check under MCode's file lock.
             let _guard = futures::executor::block_on(
@@ -6346,7 +6352,10 @@ impl ProviderService {
             )?;
             Self::set_provider_live_config_managed(&mut provider, live_config_managed);
 
-            if matches!(app_type, AppType::Mcode | AppType::MimoDesktop | AppType::Kimi) {
+            if matches!(
+                app_type,
+                AppType::Mcode | AppType::MimoDesktop | AppType::Kimi
+            ) {
                 return Self::save_native_provider(
                     state,
                     &app_type,
@@ -7160,7 +7169,9 @@ impl ProviderService {
             AppType::OpenCode => Self::extract_opencode_common_config(&provider.settings_config),
             AppType::OpenClaw => Self::extract_openclaw_common_config(&provider.settings_config),
             AppType::Hermes => Ok(String::new()), // Hermes doesn't use common config snippets
-            AppType::Pi | AppType::Mcode | AppType::MimoDesktop | AppType::Kimi | AppType::Agy => Ok(String::new()),
+            AppType::Pi | AppType::Mcode | AppType::MimoDesktop | AppType::Kimi | AppType::Agy => {
+                Ok(String::new())
+            }
         }
     }
 
@@ -7178,7 +7189,9 @@ impl ProviderService {
             AppType::OpenCode => Self::extract_opencode_common_config(settings_config),
             AppType::OpenClaw => Self::extract_openclaw_common_config(settings_config),
             AppType::Hermes => Ok(String::new()), // Hermes doesn't use common config snippets
-            AppType::Pi | AppType::Mcode | AppType::MimoDesktop | AppType::Kimi | AppType::Agy => Ok(String::new()),
+            AppType::Pi | AppType::Mcode | AppType::MimoDesktop | AppType::Kimi | AppType::Agy => {
+                Ok(String::new())
+            }
         }
     }
 
@@ -8168,7 +8181,11 @@ impl ProviderService {
                     .unwrap_or_default()
                     .into(),
             )),
-            AppType::OpenClaw | AppType::Hermes | AppType::Pi | AppType::Mcode | AppType::MimoDesktop => {
+            AppType::OpenClaw
+            | AppType::Hermes
+            | AppType::Pi
+            | AppType::Mcode
+            | AppType::MimoDesktop => {
                 // These native formats use apiKey and baseUrl directly on the object.
                 let api_key = provider
                     .settings_config

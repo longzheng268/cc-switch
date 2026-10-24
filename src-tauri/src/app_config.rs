@@ -591,7 +591,9 @@ impl CommonConfigSnippets {
             AppType::OpenCode => self.opencode.as_ref(),
             AppType::OpenClaw => self.openclaw.as_ref(),
             AppType::Hermes => self.hermes.as_ref(),
-            AppType::Pi | AppType::Mcode | AppType::MimoDesktop | AppType::Kimi | AppType::Agy => None,
+            AppType::Pi | AppType::Mcode | AppType::MimoDesktop | AppType::Kimi | AppType::Agy => {
+                None
+            }
         }
     }
 
@@ -936,7 +938,9 @@ impl MultiAppConfig {
             AppType::Hermes => &mut config.prompts.hermes.prompts,
             // Pi was added after prompts moved to SQLite. Keeping it out of
             // this legacy config avoids a second, unused prompt state.
-            AppType::Pi | AppType::Mcode | AppType::MimoDesktop | AppType::Kimi | AppType::Agy => return Ok(false),
+            AppType::Pi | AppType::Mcode | AppType::MimoDesktop | AppType::Kimi | AppType::Agy => {
+                return Ok(false)
+            }
         };
 
         prompts.insert(id, prompt);
@@ -980,7 +984,11 @@ impl MultiAppConfig {
                 AppType::OpenCode => &self.mcp.opencode.servers,
                 AppType::OpenClaw => continue, // OpenClaw MCP is still in development, skip
                 AppType::Hermes => continue,   // Hermes didn't exist in v3.6.x, skip
-                AppType::Pi | AppType::Mcode | AppType::MimoDesktop | AppType::Kimi | AppType::Agy => continue,
+                AppType::Pi
+                | AppType::Mcode
+                | AppType::MimoDesktop
+                | AppType::Kimi
+                | AppType::Agy => continue,
             };
 
             for (id, entry) in old_servers {

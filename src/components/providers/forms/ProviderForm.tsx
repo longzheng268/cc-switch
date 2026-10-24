@@ -102,6 +102,10 @@ import { AgyAccountSelect } from "./AgyOAuthSection";
 import { isMac } from "@/lib/platform";
 import { McodeProviderForm } from "./McodeProviderForm";
 import { MimoDesktopProviderForm } from "./MimoDesktopProviderForm";
+import {
+  mimoDesktopProviderPresets,
+  type MimoDesktopProviderPreset,
+} from "@/config/mimoDesktopProviderPresets";
 import { PiProviderForm } from "./PiProviderForm";
 import { OmoFormFields } from "./OmoFormFields";
 import { parseOmoOtherFieldsObject } from "@/types/omo";
@@ -152,7 +156,8 @@ type PresetEntry = {
     | GeminiProviderPreset
     | OpenCodeProviderPreset
     | OpenClawProviderPreset
-    | HermesProviderPreset;
+    | HermesProviderPreset
+    | MimoDesktopProviderPreset;
 };
 
 function getPresetProviderType(
@@ -331,7 +336,8 @@ export interface ProviderFormProps {
 export function ProviderForm(props: ProviderFormProps) {
   if (props.appId === "kimi") return <KimiProviderForm {...props} />;
   if (props.appId === "mcode") return <McodeProviderForm {...props} />;
-  if (props.appId === "mimo-desktop") return <MimoDesktopProviderForm {...props} />;
+  if (props.appId === "mimo-desktop")
+    return <MimoDesktopProviderForm {...props} />;
   if (props.appId === "pi") {
     return <PiProviderForm {...props} />;
   }
@@ -920,6 +926,11 @@ function ProviderFormFull({
     } else if (appId === "hermes") {
       return hermesProviderPresets.map<PresetEntry>((preset, index) => ({
         id: `hermes-${index}`,
+        preset,
+      }));
+    } else if (appId === "mimo-desktop") {
+      return mimoDesktopProviderPresets.map<PresetEntry>((preset, index) => ({
+        id: `mimo-desktop-${index}`,
         preset,
       }));
     }
@@ -2328,6 +2339,20 @@ function ProviderFormFull({
 
       hermesForm.resetHermesState(config, preset.providerKey);
 
+      form.reset({
+        name: preset.nameKey ? t(preset.nameKey) : preset.name,
+        websiteUrl: preset.websiteUrl ?? "",
+        settingsConfig: JSON.stringify(config, null, 2),
+        icon: preset.icon ?? "",
+        iconColor: preset.iconColor ?? "",
+      });
+      return;
+    }
+
+    // MiMo Desktop preset handling
+    if (appId === "mimo-desktop") {
+      const preset = entry.preset as MimoDesktopProviderPreset;
+      const config = preset.settingsConfig;
       form.reset({
         name: preset.nameKey ? t(preset.nameKey) : preset.name,
         websiteUrl: preset.websiteUrl ?? "",

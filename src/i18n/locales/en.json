@@ -4967,5 +4967,9 @@
       "description": "Configure an endpoint, API key and models. Existing Kimi configuration is imported automatically."
     },
     "deleteSessionHint": "Delete this session in Kimi Code to update its index and history together."
+  },
+  "preset": {
+    "miMo": "Xiaomi MiMo",
+    "miMoTokenPlan": "Xiaomi MiMo Token Plan (China)"
   }
 }

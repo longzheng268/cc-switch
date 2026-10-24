@@ -4967,5 +4967,9 @@
       "tool_use": "ツール呼び出し",
       "dynamically_loaded_tools": "必要に応じてツールを読み込む"
     }
+  },
+  "preset": {
+    "miMo": "小米 MiMo",
+    "miMoTokenPlan": "小米 MiMo トークンプラン（中国）"
   }
 }

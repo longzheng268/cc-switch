@@ -35,8 +35,9 @@ pub(crate) fn provider_exists_in_live_config(
         }
         AppType::Mcode => crate::mcode_config::get_providers()
             .map(|providers| providers.contains_key(provider_id)),
-        AppType::MimoDesktop => crate::mimo_config::get_providers()
-            .map(|providers| providers.contains_key(provider_id)),
+        AppType::MimoDesktop => {
+            crate::mimo_config::get_providers().map(|providers| providers.contains_key(provider_id))
+        }
         _ => Ok(false),
     }
 }
@@ -852,7 +853,10 @@ pub fn sync_current_to_live(state: &AppState) -> Result<(), AppError> {
 
     // Sync providers based on mode
     for app_type in AppType::all() {
-        if matches!(app_type, AppType::Pi | AppType::Mcode | AppType::MimoDesktop | AppType::Kimi) {
+        if matches!(
+            app_type,
+            AppType::Pi | AppType::Mcode | AppType::MimoDesktop | AppType::Kimi
+        ) {
             continue;
         }
         let result = if app_type.is_additive_mode() {

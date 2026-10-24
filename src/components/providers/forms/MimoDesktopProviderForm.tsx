@@ -10,14 +10,17 @@ import JsonEditor from "@/components/JsonEditor";
 import { useDarkMode } from "@/hooks/useDarkMode";
 import { useProvidersQuery } from "@/lib/query/queries";
 import type { ProviderFormData } from "@/lib/schemas/provider";
+import type { OpenCodeProviderOptions } from "@/types";
 import { BasicFormFields } from "./BasicFormFields";
 import { OpenCodeFormFields } from "./OpenCodeFormFields";
+import { ProviderPresetSelector } from "./ProviderPresetSelector";
 import { normalizeRequestHeaders } from "./helpers/requestHeaders";
 import {
   mergeOpencodeExtraOptionRows,
   toOpencodeExtraOptions,
 } from "./helpers/opencodeFormUtils";
 import type { ProviderFormProps } from "./ProviderForm";
+import { mimoDesktopProviderPresets } from "@/config/mimoDesktopProviderPresets";
 
 // MiMoCode uses AI SDK packages (same npm format as OpenCode).
 // The default npm is @ai-sdk/openai-compatible — the package MiMo Code's README
@@ -31,6 +34,11 @@ const API_FORMATS = [
 ];
 
 const DEFAULT_NPM = "@ai-sdk/openai-compatible";
+
+const PRESET_ENTRIES = mimoDesktopProviderPresets.map((preset, index) => ({
+  id: String(index),
+  preset,
+}));
 
 const configSchema = z
   .object({
@@ -89,6 +97,10 @@ export function MimoDesktopProviderForm({
   );
   const [jsonText, setJsonText] = useState(JSON.stringify(config, null, 2));
   const [jsonValid, setJsonValid] = useState(true);
+  const [presetId, setPresetId] = useState("custom");
+  const preset =
+    presetId === "custom" ? undefined : mimoDesktopProviderPresets[Number(presetId)];
+  const category = initialData?.category ?? preset?.category ?? "custom";
   const [extraOptions, setExtraOptions] = useState(
     toOpencodeExtraOptions(config.options ?? {}),
   );
@@ -118,11 +130,11 @@ export function MimoDesktopProviderForm({
   const name = form.watch("name");
   const ready = Boolean(
     jsonValid &&
-      name.trim() &&
-      (isEdit || (providerKey && !keyInvalid && !keyTaken)) &&
-      config.options?.baseURL?.trim() &&
-      config.options?.apiKey?.trim() &&
-      Object.keys(config.models ?? {}).length,
+    name.trim() &&
+    (isEdit || (providerKey && !keyInvalid && !keyTaken)) &&
+    config.options?.baseURL?.trim() &&
+    config.options?.apiKey?.trim() &&
+    Object.keys(config.models ?? {}).length,
   );
   useEffect(() => {
     onSubmitReadyChange?.(ready);
@@ -132,8 +144,28 @@ export function MimoDesktopProviderForm({
     setJsonText(JSON.stringify(next, null, 2));
     setJsonValid(true);
   };
-  const updateOptions = (next: Partial<typeof config.options>) =>
+  const updateOptions = (next: Partial<OpenCodeProviderOptions>) =>
     update({ ...config, options: { ...config.options, ...next } });
+  const choosePreset = (id: string) => {
+    setPresetId(id);
+    const selected =
+      id === "custom" ? undefined : mimoDesktopProviderPresets[Number(id)];
+    const next = selected?.settingsConfig ?? {
+      npm: DEFAULT_NPM,
+      options: {},
+      models: {},
+    };
+    update(next as MimoConfig);
+    setExtraOptions(toOpencodeExtraOptions(next.options ?? {}));
+    form.reset({
+      name: selected?.nameKey ? t(selected.nameKey) : (selected?.name ?? ""),
+      notes: "",
+      websiteUrl: selected?.websiteUrl ?? "",
+      icon: selected?.icon ?? "",
+      iconColor: selected?.iconColor ?? "",
+      settingsConfig: JSON.stringify(next),
+    });
+  };
   return (
     <Form {...form}>
       <form
@@ -174,6 +206,20 @@ export function MimoDesktopProviderForm({
           <p role="alert" className="text-sm text-destructive">
             {error}
           </p>
+        )}
+        {!initialData && (
+          <ProviderPresetSelector
+            selectedPresetId={presetId}
+            presetEntries={PRESET_ENTRIES}
+            presetCategoryLabels={{
+              custom: t("providerPreset.custom"),
+              cn_official: t("providerForm.categoryCnOfficial"),
+              aggregator: t("providerForm.categoryAggregation"),
+              third_party: t("providerForm.categoryThirdParty"),
+            }}
+            onPresetChange={choosePreset}
+            category={category}
+          />
         )}
         <fieldset
           disabled={busy || !jsonValid}

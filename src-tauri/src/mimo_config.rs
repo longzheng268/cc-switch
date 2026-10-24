@@ -119,10 +119,8 @@ pub(crate) fn get_providers() -> Result<IndexMap<String, Value>, AppError> {
     match document.get("provider") {
         None | Some(Value::Null) => Ok(IndexMap::new()),
         Some(value) => {
-            let providers: IndexMap<String, Value> =
-                serde_json::from_value(value.clone()).map_err(|_| {
-                    AppError::Config("Invalid MiMo provider configuration".into())
-                })?;
+            let providers: IndexMap<String, Value> = serde_json::from_value(value.clone())
+                .map_err(|_| AppError::Config("Invalid MiMo provider configuration".into()))?;
             Ok(providers)
         }
     }
@@ -171,9 +169,7 @@ pub(crate) fn validate_provider(id: &str, config: &Value) -> Result<(), AppError
         .and_then(Value::as_object)
         .is_none_or(|models| models.is_empty() || models.keys().any(|id| id.trim().is_empty()))
     {
-        return Err(AppError::InvalidInput(
-            "Add at least one MiMo model".into(),
-        ));
+        return Err(AppError::InvalidInput("Add at least one MiMo model".into()));
     }
     Ok(())
 }
@@ -339,12 +335,14 @@ pub(crate) fn set_current_model(model: &str) -> Result<(), AppError> {
 #[allow(dead_code)]
 pub(crate) fn get_task_notifications() -> Result<Value, AppError> {
     let prefs = get_preferences()?;
-    Ok(prefs.get("taskNotifications").cloned().unwrap_or_else(|| json!({
-        "completion": "unfocused",
-        "permission": true,
-        "question": true,
-        "failure": true,
-    })))
+    Ok(prefs.get("taskNotifications").cloned().unwrap_or_else(|| {
+        json!({
+            "completion": "unfocused",
+            "permission": true,
+            "question": true,
+            "failure": true,
+        })
+    }))
 }
 
 /// Sets the notification settings object in `preferences.json`.
@@ -414,26 +412,46 @@ mod tests {
 
     #[test]
     fn validate_provider_rejects_empty_key() {
-        assert!(validate_provider("", &json!({"options":{"baseURL":"https://x.com","apiKey":"k"},"models":{"m":{}}})).is_err());
+        assert!(validate_provider(
+            "",
+            &json!({"options":{"baseURL":"https://x.com","apiKey":"k"},"models":{"m":{}}})
+        )
+        .is_err());
     }
 
     #[test]
     fn validate_provider_rejects_bad_url() {
-        assert!(validate_provider("ok", &json!({"options":{"baseURL":"ftp://x.com","apiKey":"k"},"models":{"m":{}}})).is_err());
+        assert!(validate_provider(
+            "ok",
+            &json!({"options":{"baseURL":"ftp://x.com","apiKey":"k"},"models":{"m":{}}})
+        )
+        .is_err());
     }
 
     #[test]
     fn validate_provider_rejects_missing_key() {
-        assert!(validate_provider("ok", &json!({"options":{"baseURL":"https://x.com"},"models":{"m":{}}})).is_err());
+        assert!(validate_provider(
+            "ok",
+            &json!({"options":{"baseURL":"https://x.com"},"models":{"m":{}}})
+        )
+        .is_err());
     }
 
     #[test]
     fn validate_provider_rejects_no_models() {
-        assert!(validate_provider("ok", &json!({"options":{"baseURL":"https://x.com","apiKey":"k"},"models":{}})).is_err());
+        assert!(validate_provider(
+            "ok",
+            &json!({"options":{"baseURL":"https://x.com","apiKey":"k"},"models":{}})
+        )
+        .is_err());
     }
 
     #[test]
     fn validate_provider_accepts_valid_config() {
-        assert!(validate_provider("ok", &json!({"options":{"baseURL":"https://x.com","apiKey":"k"},"models":{"m":{}}})).is_ok());
+        assert!(validate_provider(
+            "ok",
+            &json!({"options":{"baseURL":"https://x.com","apiKey":"k"},"models":{"m":{}}})
+        )
+        .is_ok());
     }
 }

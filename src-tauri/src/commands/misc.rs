@@ -690,8 +690,7 @@ const MCODE_INSTALL_WINDOWS_SCRIPT: &str =
 #[cfg(target_os = "windows")]
 const AGY_INSTALL_WINDOWS_SCRIPT: &str = "irm https://antigravity.google/cli/install.ps1 | iex";
 #[cfg(target_os = "windows")]
-const MIMOCODE_INSTALL_WINDOWS_SCRIPT: &str =
-    "npm i -g @mimo-ai/cli@latest";
+const MIMOCODE_INSTALL_WINDOWS_SCRIPT: &str = "npm i -g @mimo-ai/cli@latest";
 #[cfg(target_os = "windows")]
 const CODEX_INSTALL_WINDOWS_SCRIPT: &str = "irm https://chatgpt.com/codex/install.ps1 | iex";
 
